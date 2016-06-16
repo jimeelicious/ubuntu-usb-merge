@@ -31,13 +31,18 @@ mount "${usbpath}"casper-rw readwrite -o loop,rw || exit 1
 
 # different versions of Ubuntu put the upper half of the filesystem in different places
 upperpath=readwrite
+
+if test -d readwrite/work
+  then
+  workpath=${upperpath}/work
+fi
 if test -d readwrite/upper
   then
   upperpath=${upperpath}/upper
 fi
 echo "Path to rw part of filesystem detected as ${upperpath}"
 echo "Mounting overlayfs"
-mount none merged -o lowerdir=readonly,upperdir=${upperpath} -t overlayfs || exit 1
+mount none merged -o lowerdir=readonly,upperdir=${upperpath},workdir=${workpath} -t overlayfs || exit 1
 echo "Making new squashfs"
 mksquashfs merged newfilesystem.squashfs -comp xz
 
