@@ -12,6 +12,11 @@ if ! which mksquashfs >/dev/null 2>&1; then
     exit 1
 fi
 
+if ! which overlayroot >/dev/null 2>&1; then
+    echo "overlayfs is required, but was not found; please install overlayroot"
+    exit 1
+fi
+
 # adding a trailing / here so we don't accidentally start with / later on
 usbpath=$1/
 #check for root
