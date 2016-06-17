@@ -1,18 +1,19 @@
 #!/bin/bash
 set -e; set -u
 
+# Confirms that arguments are set
 if test $# -ne 1
   then
     echo "Usage $0 /path/to/mountedUSBDrive"
     exit 1
 fi
 
+# Check for required packages
 if ! which mksquashfs >/dev/null 2>&1; then
     echo "mksquashfs is required, but was not found; please install mksquashfs-tools"
     exit 1
 fi
-
-if ! which overlayroot >/dev/null 2>&1; then
+if ! dpkg -s overlayroot >/dev/null 2>&1; then
     echo "overlayfs is required, but was not found; please install overlayroot"
     exit 1
 fi
@@ -28,7 +29,7 @@ cd "${usblive}"
 mkdir readonly readwrite merged
 echo "Mounting ${usbpath}casper/filesystem.squashfs"
 mount "${usbpath}"casper/filesystem.squashfs readonly -t squashfs -o loop,ro
-
+ 
 echo "Checking ${usbpath}casper-rw"
 fsck ${usbpath}casper-rw || exit 1
 echo "Mounting ${usbpath}casper-rw"
@@ -59,7 +60,7 @@ umount readonly
 echo "mounting new squashfs and making new manifest"
 mount newfilesystem.squashfs readonly -o loop,ro -t squashfs
 chroot readonly dpkg-query -W --showformat='${Package} ${Version}\n' > newfilesystem.manifest
-printf $(du -sx --block-size=1 readonly | cut -f1) > newfilesystem.size 
+printf $(du -sx --block-size=1 readonly | cut -f1) > newfilesystem.size
 
 echo "unmounting new squashfs and copying back to usb"
 umount readonly
