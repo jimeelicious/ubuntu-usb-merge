@@ -29,7 +29,7 @@ cd "${usblive}"
 mkdir readonly readwrite merged
 echo "Mounting ${usbpath}casper/filesystem.squashfs"
 mount "${usbpath}"casper/filesystem.squashfs readonly -t squashfs -o loop,ro
- 
+
 echo "Checking ${usbpath}casper-rw"
 fsck ${usbpath}casper-rw || exit 1
 echo "Mounting ${usbpath}casper-rw"
@@ -37,16 +37,17 @@ mount "${usbpath}"casper-rw readwrite -o loop,rw || exit 1
 
 # different versions of Ubuntu put the upper half of the filesystem in different places
 upperpath=readwrite
-
+echo "Path to rw part of filesystem detected as ${upperpath}"
 if test -d readwrite/work
   then
   workpath=${upperpath}/work
+  echo "Path to *work* path of filesystem detected as ${workpath}"
 fi
 if test -d readwrite/upper
   then
   upperpath=${upperpath}/upper
+  echo "Path to upper path of filesystem detected as ${upperpath}"
 fi
-echo "Path to rw part of filesystem detected as ${upperpath}"
 echo "Mounting overlayfs"
 mount none merged -o lowerdir=readonly,upperdir=${upperpath},workdir=${workpath} -t overlayfs || exit 1
 echo "Making new squashfs"
